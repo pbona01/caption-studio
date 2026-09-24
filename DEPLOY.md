@@ -20,8 +20,8 @@ The initial public API has **no user accounts, authorization, quota, or automati
 
 ## 2. Deploy the PWA to Vercel
 
-1. Import the same GitHub repository into Vercel.
-2. Set **Root Directory** to `frontend`, framework **Vite**, build command `pnpm build`, and output directory `dist`. `frontend/vercel.json` handles `/editor/...` refreshes.
+1. Import the same GitHub repository into Vercel. If Vercel selects the new **Services** preset and lists both `frontend` and `backend`, set **Root Directory** to the repository root (`.`), not `frontend`. The root `vercel.json` deliberately defines only the `frontend` Vite service and routes editor deep links to the SPA. Do not add the backend as a Vercel service.
+2. Alternatively, select the single **Vite** preset, keep **Root Directory** as `frontend`, build with `pnpm build`, and output to `dist`. `frontend/vercel.json` handles `/editor/...` refreshes in that mode.
 3. Set `VITE_API_URL` to the **HTTPS API origin** from step 1, without `/api` or a trailing slash, in Vercel Production and Preview environments. Redeploy after setting it: Vite injects this value at build time.
 4. Add the Vercel Production and Preview origins to `CAPTION_STUDIO_ALLOWED_ORIGINS` on the API. This value is a JSON array. A wildcard preview-domain pattern is not currently supported by the backend CORS configuration; add each preview origin you intend to use.
 5. Visit the Vercel URL on desktop and mobile, check **Engine online**, upload a short video, edit a word, export, and download the MP4.
