@@ -154,7 +154,7 @@ function UploadPage() {
             <h2 className="text-sm font-semibold text-white">Processing engine</h2>
             <p className="mt-1 text-xs leading-5 text-zinc-400">{Capacitor.isNativePlatform() ? 'For a Wi-Fi test, run FastAPI on your computer and enter its LAN address. The phone and computer must be on the same Wi-Fi.' : 'Video processing needs a separate online API. Enter its HTTPS address, or configure VITE_API_URL in Vercel for everyone.'}</p>
             <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-              <input aria-label="Engine address" type="url" value={apiAddress} onChange={(event) => setApiAddress(event.target.value)} placeholder="http://192.168.1.100:8000" className="min-w-0 flex-1 rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm text-white outline-none focus:border-accent" />
+              <input aria-label="Engine address" type="url" value={apiAddress} onChange={(event) => setApiAddress(event.target.value)} placeholder={Capacitor.isNativePlatform() ? 'http://192.168.1.100:8000' : 'https://your-api.up.railway.app'} className="min-w-0 flex-1 rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm text-white outline-none focus:border-accent" />
               <button type="button" onClick={() => void testEngine()} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-black">Save & test</button>
             </div>
             {apiSetupError && <p role="alert" className="mt-2 text-xs text-amber-200">{apiSetupError}</p>}

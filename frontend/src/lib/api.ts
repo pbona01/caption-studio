@@ -21,7 +21,14 @@ export function getApiBaseUrl(): string {
 }
 
 export function setApiBaseUrl(value: string): string {
-  const url = new URL(value.trim())
+  const address = value.trim()
+  if (!address) throw new Error('Enter your processing engine’s HTTPS address first. This is the Railway domain, not the Vercel website address.')
+  let url: URL
+  try {
+    url = new URL(address)
+  } catch {
+    throw new Error('Enter a full address such as https://your-api.up.railway.app (without /api).')
+  }
   if (!['http:', 'https:'].includes(url.protocol) || !url.hostname || url.username || url.password || url.pathname !== '/' || url.search || url.hash) {
     throw new Error('Enter a server address like http://192.168.1.100:8000 (no /api path).')
   }
