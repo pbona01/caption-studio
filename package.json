@@ -1,0 +1,16 @@
+{
+  "name": "caption-studio",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "concurrently -n api,web -c magenta,cyan \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "powershell -ExecutionPolicy Bypass -File scripts/dev-backend.ps1",
+    "build": "npm --prefix frontend run build",
+    "test": "powershell -ExecutionPolicy Bypass -File scripts/test-backend.ps1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
+
