@@ -6,6 +6,7 @@ import type {
   UploadResponse,
 } from '../types/video'
 import type { EditorProjectDocument } from '../editor/types'
+import { Capacitor } from '@capacitor/core'
 
 // In the browser, relative `/api` requests are proxied by Vite. In a
 // Capacitor build they must point at the machine running FastAPI. Keep a
@@ -17,7 +18,10 @@ const API_URL_KEY = 'caption-studio-api-url'
 
 export function getApiBaseUrl(): string {
   const stored = typeof window !== 'undefined' ? window.localStorage.getItem(API_URL_KEY) : null
-  return (stored || runtimeApiUrl || import.meta.env.VITE_API_URL || '').replace(/\/+$/, '')
+  const configured = runtimeApiUrl || import.meta.env.VITE_API_URL || ''
+  // A published website has one owner-configured API. Ignore old per-browser
+  // addresses left behind by the former public setup form.
+  return (Capacitor.isNativePlatform() ? stored || configured : configured).replace(/\/+$/, '')
 }
 
 export function setApiBaseUrl(value: string): string {

@@ -3,17 +3,18 @@ import { ArrowUpRight, Film, LoaderCircle, Upload } from 'lucide-react'
 
 interface UploadDropzoneProps {
   isUploading: boolean
+  disabled?: boolean
   onUpload: (file: File) => void
 }
 
 const ACCEPTED_EXTENSIONS = ['.mp4', '.mov', '.m4v']
 
-export function UploadDropzone({ isUploading, onUpload }: UploadDropzoneProps) {
+export function UploadDropzone({ isUploading, disabled = false, onUpload }: UploadDropzoneProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [isDragging, setIsDragging] = useState(false)
 
   const submit = (file?: File) => {
-    if (!file || isUploading) return
+    if (!file || isUploading || disabled) return
     const extension = `.${file.name.split('.').pop()?.toLowerCase() ?? ''}`
     if (!ACCEPTED_EXTENSIONS.includes(extension)) return
     onUpload(file)
@@ -34,14 +35,14 @@ export function UploadDropzone({ isUploading, onUpload }: UploadDropzoneProps) {
     <div
       onDragEnter={(event) => {
         event.preventDefault()
-        setIsDragging(true)
+        if (!disabled) setIsDragging(true)
       }}
       onDragOver={(event) => event.preventDefault()}
       onDragLeave={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget as Node)) setIsDragging(false)
       }}
       onDrop={onDrop}
-      className={`group relative overflow-hidden border transition duration-300 ${
+      className={`group relative overflow-hidden rounded-2xl border transition duration-300 ${
         isDragging ? 'border-accent bg-accent/[0.035]' : 'border-white/10 bg-panel'
       }`}
     >
@@ -50,6 +51,7 @@ export function UploadDropzone({ isUploading, onUpload }: UploadDropzoneProps) {
         type="file"
         accept=".mp4,.mov,.m4v,video/mp4,video/quicktime"
         className="sr-only"
+        disabled={disabled}
         onChange={onChange}
       />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
@@ -67,14 +69,14 @@ export function UploadDropzone({ isUploading, onUpload }: UploadDropzoneProps) {
           </h2>
           <p className="mx-auto mt-3 max-w-sm text-sm leading-6 text-zinc-500">
             {isUploading
-              ? 'Uploading to the processing engine and inspecting media metadata.'
-              : 'Add a short talking-head clip to begin. Your video is uploaded to the configured processing engine.'}
+              ? 'Uploading and preparing your video.'
+              : 'Add a short talking-head clip to begin.'}
           </p>
           <button
             type="button"
-            disabled={isUploading}
+            disabled={isUploading || disabled}
             onClick={() => inputRef.current?.click()}
-            className="mt-8 inline-flex h-11 items-center gap-2 bg-white px-5 text-sm font-semibold text-black transition hover:bg-accent disabled:cursor-wait disabled:opacity-60"
+            className="mt-8 inline-flex h-11 items-center gap-2 rounded-xl bg-white px-5 text-sm font-semibold text-black transition hover:bg-accent disabled:cursor-not-allowed disabled:opacity-40"
           >
             {isUploading ? 'Uploading' : 'Choose video'}
             {!isUploading && <ArrowUpRight className="size-4" />}

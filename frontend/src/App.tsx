@@ -13,6 +13,7 @@ type ApiStatus = 'checking' | 'online' | 'offline'
 
 function UploadPage() {
   const navigate = useNavigate()
+  const isNative = Capacitor.isNativePlatform()
   const [apiStatus, setApiStatus] = useState<ApiStatus>('checking')
   const [apiAddress, setApiAddress] = useState(getApiBaseUrl)
   const [apiSetupError, setApiSetupError] = useState<string | null>(null)
@@ -48,6 +49,11 @@ function UploadPage() {
       setApiStatus('offline')
       setApiSetupError(cause instanceof Error ? cause.message : 'Invalid server address.')
     }
+  }
+
+  const retryConnection = async () => {
+    setApiStatus('checking')
+    setApiStatus(await checkApiHealth() ? 'online' : 'offline')
   }
 
   const pollProcessing = (projectId: string) => {
@@ -126,9 +132,9 @@ function UploadPage() {
               }`}
             />
             {apiStatus === 'online'
-              ? 'Engine online'
+              ? 'Ready'
               : apiStatus === 'offline'
-                ? 'Engine offline'
+                ? 'Unavailable'
                 : 'Connecting'}
           </div>
         </div>
@@ -149,15 +155,21 @@ function UploadPage() {
           </p>
         </div>
 
-        {(Capacitor.isNativePlatform() || apiStatus === 'offline') && (
+        {isNative && (
           <div className="mb-5 rounded-xl border border-white/10 bg-panel p-4 sm:p-5">
             <h2 className="text-sm font-semibold text-white">Processing engine</h2>
-            <p className="mt-1 text-xs leading-5 text-zinc-400">{Capacitor.isNativePlatform() ? 'For a Wi-Fi test, run FastAPI on your computer and enter its LAN address. The phone and computer must be on the same Wi-Fi.' : 'Video processing needs a separate online API. Enter its HTTPS address, or configure VITE_API_URL in Vercel for everyone.'}</p>
+            <p className="mt-1 text-xs leading-5 text-zinc-400">For a Wi-Fi test, run FastAPI on your computer and enter its LAN address. The phone and computer must be on the same Wi-Fi.</p>
             <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-              <input aria-label="Engine address" type="url" value={apiAddress} onChange={(event) => setApiAddress(event.target.value)} placeholder={Capacitor.isNativePlatform() ? 'http://192.168.1.100:8000' : 'https://your-api.up.railway.app'} className="min-w-0 flex-1 rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm text-white outline-none focus:border-accent" />
+              <input aria-label="Engine address" type="url" value={apiAddress} onChange={(event) => setApiAddress(event.target.value)} placeholder="http://192.168.1.100:8000" className="min-w-0 flex-1 rounded-lg border border-white/15 bg-black/30 px-3 py-2 text-sm text-white outline-none focus:border-accent" />
               <button type="button" onClick={() => void testEngine()} className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-black">Save & test</button>
             </div>
             {apiSetupError && <p role="alert" className="mt-2 text-xs text-amber-200">{apiSetupError}</p>}
+          </div>
+        )}
+        {!isNative && apiStatus === 'offline' && (
+          <div role="status" className="mb-5 flex flex-col gap-3 rounded-xl border border-amber-200/20 bg-amber-200/[0.06] p-4 text-sm text-amber-100 sm:flex-row sm:items-center sm:justify-between">
+            <span>Video processing is temporarily unavailable. Please try again shortly.</span>
+            <button type="button" onClick={() => void retryConnection()} className="self-start rounded-lg border border-amber-200/30 px-3 py-2 font-medium transition hover:bg-amber-200/10 sm:self-auto">Try again</button>
           </div>
         )}
         {error && (
@@ -177,7 +189,7 @@ function UploadPage() {
             />
           </>
         ) : (
-          <UploadDropzone isUploading={isUploading} onUpload={handleUpload} />
+          <UploadDropzone isUploading={isUploading} disabled={apiStatus !== 'online'} onUpload={handleUpload} />
         )}
 
         <div className="mt-6 flex flex-col gap-2 text-[11px] text-zinc-600 sm:flex-row sm:items-center sm:justify-between">
